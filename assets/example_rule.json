@@ -1,0 +1,21 @@
+{
+    "rule": "Login",
+    "variables": [
+        {
+            "name": "A",
+            "field": "Event.System.Provider.Name", // Need to be verbose (take into account _attributes / #attributes in field parsing)
+            "regex": ".*Security.*"
+        },
+        {
+            "name": "B",
+            "field": "Event.System.EventID",
+            "raw": "4624" // Raw = Value enum easy for testing == conditionals
+        },
+        {
+            "name": "C",
+            "field": "Event.EventData.*", // Multiple field matching options for variables
+            "string": "BAD STUFF"
+        },
+    ],
+    "conditional": "A & C & B" // Tokenise this string, basic stuff like &/and |/or and maybe more down the line. Yara for inspiration
+}

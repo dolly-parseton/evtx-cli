@@ -1,0 +1,3 @@
+[submodule ".test_data/EVTX-ATTACK-SAMPLES"]
+	path = .test_data/EVTX-ATTACK-SAMPLES
+	url = https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
