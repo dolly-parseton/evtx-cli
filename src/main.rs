@@ -1,10 +1,11 @@
-extern crate serde;
 extern crate serde_json;
-use afrs::Rule;
-use std::{fs, io::BufReader, path::PathBuf};
+// use std::borrow::Cow;
+use std::{
+    io::{stderr, stdout, Write},
+    path::PathBuf,
+};
 use structopt::StructOpt;
-
-mod pattern_matching;
+// use tau_engine::Rule;
 
 #[derive(StructOpt)]
 #[structopt(
@@ -18,22 +19,12 @@ struct Opt {
     /// Enables attribute flattening, enabling this flattens objects containing '#attributes' fields into 'root_field_attributes'.
     #[structopt(long = "flatten", short)]
     flatten_attributes: bool,
-    /// Match on one or more AFRS rules.
-    #[structopt(long, short, parse(from_os_str))]
-    rules: Option<Vec<PathBuf>>,
 }
 
 fn main() {
     let mut opt = Opt::from_args();
-    let mut rules = Vec::new();
-    if let Some(rules_) = opt.rules {
-        for rule in rules_ {
-            let f = fs::File::open(rule).unwrap();
-            let r = BufReader::new(f);
-            let rule: Rule = serde_json::from_reader(r).unwrap();
-            rules.push(rule.validate().unwrap());
-        }
-    }
+    let mut stdout = stdout();
+    let mut stderr = stderr();
     while let Some(path) = opt.files.pop() {
         // println!("{:?}", path);
         let mut parser = match evtx::EvtxParser::from_path(&path) {
@@ -55,21 +46,13 @@ fn main() {
             match record {
                 Ok(r) => match serde_json::to_string(&r.data) {
                     Ok(s) => {
-                        // Match on the rule if there
-                        if rules.is_empty() {
-                            println!("{}", s);
-                        } else {
-                            for rule in &rules {
-                                if rule.match_json(&s) {
-                                    println!("Matched on: {} \n{}", "", s);
-                                }
-                            }
-                        }
+                        writeln!(stdout, "{}", s);
+                        // println!("{}", s);
                     }
-                    Err(e) => eprintln!("{}", e),
+                    Err(e) => writeln!(stderr, "{}", e),
                 },
                 Err(e) => {
-                    eprintln!("{}", e);
+                    writeln!(stderr, "{}", e);
                 }
             }
         }
