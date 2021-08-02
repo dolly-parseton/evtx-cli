@@ -17,7 +17,7 @@ struct Opt {
     #[structopt(parse(from_os_str))]
     files: Vec<PathBuf>,
     /// Enables attribute flattening, enabling this flattens objects containing '#attributes' fields into 'root_field_attributes'.
-    #[structopt(long = "flatten", short)]
+    #[structopt(short, long = "flatten", short)]
     flatten_attributes: bool,
 }
 
